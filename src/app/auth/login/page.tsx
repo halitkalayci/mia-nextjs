@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent } from "react";
 
@@ -42,6 +43,9 @@ export default function Page() {
                     <input className="shadow appearance-none border rounded" type="password" name="password" />
                 </div>
                 <button type="submit" className="bg-blue-500 rounded text-white w-full p-3">Giriş Yap</button>
+                <Link href={"/auth/register"} passHref legacyBehavior> 
+                 <a>Kayıt Ol</a>
+                </Link>
            </form>
         </div>
     );

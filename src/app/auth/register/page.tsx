@@ -1,9 +1,32 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { FormEvent } from "react";
 
 export default function Page() {
-  const handleSubmit = async (event: FormEvent) => {};
+    const router = useRouter();
+    const handleSubmit = async (event:FormEvent) => {
+        event.preventDefault();
+
+        // Form elementi içerisindeki verileri formdata'ya aktar.
+        const formData = new FormData(event.target as HTMLFormElement);
+        // Input'daki name değeri = username olan form verisini verir.
+        const username = formData.get('username');
+        const password = formData.get('password');
+
+        // fetch API
+        // Axios - HttpClient => Kullanılabilir paketler.
+        const response = await fetch('/api/register', { method:'POST', body: JSON.stringify({username,password}) });
+        const responseAsJson = await response.json();
+
+        if(responseAsJson.success)
+        {
+            // Kullanıcı girişi başarılı, kullanıcıyı ana sayfaya yönlendir.
+            router.push('/auth/login');
+        }else{
+            alert(responseAsJson.message);
+        }
+    }
 
   return (
     <div className="w-full h-[100vh] flex flex-col justify-center items-center">
