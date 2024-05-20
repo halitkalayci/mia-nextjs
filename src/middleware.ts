@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyJwtToken } from "./libs/jwt";
-
+// DB PW: 2580
 // Authentication sayfalarının tanımı.
 const AUTH_PAGES = ['/auth/login', '/auth/register']
 // Bir url authentication sayfası mı değil mi kontrol eden function.
@@ -37,6 +37,11 @@ export async function middleware(request:NextRequest)
         return NextResponse.redirect(new URL('/', url));
     }
 
+    if(isSecurePage(nextUrl.pathname))
+    {
+
+    }
+
     // Secure URL'ler
     return NextResponse.next();
 }
@@ -44,3 +49,8 @@ export async function middleware(request:NextRequest)
 export const config = {
     matcher: ["/auth/login", "/admin/dashboard"]
 }
+
+// Nextjs ile auth işlemleri (prisma => hashing,salting)
+// RsPack ile microfrontend 
+// Nextjs ile full stack crud işlemleri olan bir uygulama (prisma, vs..)
+
