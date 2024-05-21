@@ -9,7 +9,7 @@ const isAuthPage = (url: string) =>
 
 // Korumalı sayfaların tanımı.
 const SECURED_PAGES = [
-  { path: "/admin/dashboard", requiredRoles: ["moderator", "admin"] },
+  { path: "/admin/dashboard", requiredRoles: ["moderator", "admin"] }, // RequiredRoles varsa Authorization, yoksa Authentication
   { path: "/homepage/index", requiredRoles: [] },
 ];
 // Gelen url korumalı sayfaların path'leriyle uyuşuyor mu kontrol eden function.
