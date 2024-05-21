@@ -8,9 +8,10 @@ export default function MainLayout( {
   }: Readonly<{
     children: React.ReactNode;
   }> ) {
+    // URL'in path kısmını al.
     const path = usePathname();
-    console.log(path);
 
+    // Navbarın gözükmesini istemediğimiz url listesi.
     const NO_NAVBAR_ROUTES= ['/auth/login', '/auth/register']
   return (
     <>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar/Navbar";
 import MainLayout from "@/components/layout/MainLayout";
 
 
@@ -22,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        { /* Layout.tsx'i client component işaretlemek best practice olmadığından bir client side componenta bu görevi aktar. */ }
         <MainLayout children={children}></MainLayout>
         </body>
     </html>
