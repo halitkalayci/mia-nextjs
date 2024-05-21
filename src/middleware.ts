@@ -11,6 +11,7 @@ const isAuthPage = (url: string) =>
 const SECURED_PAGES = [
   { path: "/admin/dashboard", requiredRoles: ["moderator", "admin"] }, // RequiredRoles varsa Authorization, yoksa Authentication
   { path: "/homepage/index", requiredRoles: [] },
+  { path: "/", requiredRoles: [] },
 ];
 // Gelen url korumalı sayfaların path'leriyle uyuşuyor mu kontrol eden function.
 const isSecurePage = (url: string) =>
@@ -18,12 +19,13 @@ const isSecurePage = (url: string) =>
 
 export async function middleware(request: NextRequest) {
   const { cookies, url, nextUrl } = request;
+  console.log("nexturl:", nextUrl);
 
   const { value: token } = cookies.get("token") ?? { value: null };
   const jwtTokenResult = await verifyJwtToken(token!);
   const hasVerifiedToken = jwtTokenResult; // Kullanıcı token sahibi mi ve geçerli mi?
   const authPageRequested = isAuthPage(nextUrl.pathname); // Kullanıcı giriş sayfasına mı istek attı ?
-  const roles:string[] = jwtTokenResult?.payload["roles"] as string[];
+  const roles: string[] = jwtTokenResult?.payload["roles"] as string[];
   // VerifyJwtToken => Tokenin bizim secret keyimiz ile üretildiğini ve zamanının geçip geçmediğini kontrol eder.
   if (authPageRequested) {
     if (!hasVerifiedToken) {
@@ -37,22 +39,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", url));
   }
   let securedPath = isSecurePage(nextUrl.pathname);
+  console.log(securedPath);
   if (securedPath) {
-
     if (securedPath.requiredRoles.length > 0) {
-        if(!hasVerifiedToken)
-            return NextResponse.redirect(new URL('/auth/login', url));
-        // Rol kontrolü gerekli.
-        if(securedPath.requiredRoles.some((role) => roles.some(r => r.toLowerCase() == role.toLowerCase())))
-            return NextResponse.next();
+      if (!hasVerifiedToken)
+        return NextResponse.redirect(new URL("/auth/login", url));
+      // Rol kontrolü gerekli.
+      if (
+        securedPath.requiredRoles.some((role) =>
+          roles.some((r) => r.toLowerCase() == role.toLowerCase())
+        )
+      )
+        return NextResponse.next();
 
-        return NextResponse.redirect(new URL('/auth/accessdenied', url));
-    }else{
-        // Rol kontrolü gereksiz, auth yeterli.
-        if(hasVerifiedToken)
-            return NextResponse.next();
+      return NextResponse.redirect(new URL("/auth/accessdenied", url));
+    } else {
+      // Rol kontrolü gereksiz, auth yeterli.
+      if (hasVerifiedToken) return NextResponse.next();
 
-        return NextResponse.redirect(new URL('/auth/login', url));
+      return NextResponse.redirect(new URL("/auth/login", url));
     }
   }
   // URL'De koruma yoktur. (Protected Route değildir..)
@@ -60,7 +65,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/auth/login", "/admin/dashboard", "/homepage/index"],
+  matcher: ["/auth/login", "/admin/dashboard", "/homepage/index", "/"],
 };
 
 // Nextjs ile auth işlemleri (prisma => hashing,salting)
