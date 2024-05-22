@@ -4,13 +4,22 @@ import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { addCategoryValidationSchema } from "@/libs/validation/validationSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function Page() {
+  const router = useRouter();
   const form = useForm({ resolver: yupResolver(addCategoryValidationSchema) });
 
-  const onSubmit = (s: any) => {
-    console.log(s);
+  const onSubmit = async (category: any) => {
+    const response = await fetch("/api/admin/category", {
+      method: "POST",
+      body: JSON.stringify(category),
+    });
+
+    const responseAsJson = await response.json();
+
+    if (responseAsJson.success) router.push("/admin/category/list");
   };
 
   return (

@@ -45,9 +45,10 @@ model Product {
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String
-  products Product[]
+  id          Int       @id @default(autoincrement())
+  name        String
+  deletedDate DateTime?
+  products    Product[]
 }
 
 model Order {
