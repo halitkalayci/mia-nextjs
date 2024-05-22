@@ -5,7 +5,7 @@ import { verifyJwtToken } from "./libs/jwt";
 const AUTH_PAGES = ["/auth/login", "/auth/register"];
 // Bir url authentication sayfası mı değil mi kontrol eden function.
 const isAuthPage = (url: string) =>
-  AUTH_PAGES.some((page) => page.startsWith(url));
+  AUTH_PAGES.some((page) => page.toLowerCase() == url.toLowerCase());
 
 // Korumalı sayfaların tanımı.
 const SECURED_PAGES = [
@@ -22,8 +22,9 @@ const getVerifiedToken = async (request: NextRequest) => {
   if (token) {
     try {
       const jwtVerifyResult = await verifyJwtToken(token);
+
       return {
-        hasVerifiedToken: true,
+        hasVerifiedToken: jwtVerifyResult ? true : false,
         roles: jwtVerifyResult?.payload["roles"] as string[],
       };
     } catch (error) {
@@ -65,6 +66,8 @@ export async function middleware(request: NextRequest) {
   const { nextUrl } = request;
   const authPageRequested = isAuthPage(nextUrl.pathname);
   let securedPath = isSecurePage(nextUrl.pathname);
+
+  console.log(authPageRequested, securedPath);
 
   if (authPageRequested || securedPath) {
     const tokenResult = await getVerifiedToken(request);
