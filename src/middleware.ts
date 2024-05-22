@@ -50,9 +50,9 @@ const processSecuredRoute = (
   if (!tokenResult.hasVerifiedToken)
     return NextResponse.redirect(new URL("/auth/login", request.url));
 
-  if (securedPathConfig.roles.length <= 0) return NextResponse.next();
+  if (securedPathConfig.requiredRoles.length <= 0) return NextResponse.next();
 
-  let userHasRole: boolean = securedPathConfig.roles.some((role: any) =>
+  let userHasRole: boolean = securedPathConfig.requiredRoles.some((role: any) =>
     tokenResult.roles.some((r: any) => r == role)
   );
 
