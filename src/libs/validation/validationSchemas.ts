@@ -12,3 +12,10 @@ export const updateCategoryValidationSchema = object({
     .required("Kategori adı zorunludur.")
     .min(3, "Kategori adı en az 3 karakter olmalıdır."),
 });
+
+export const addProductValidationSchema = object({
+  name: string().required().min(3),
+  categoryId: number().required().min(1),
+  description: string().min(5),
+  price: number().required().min(1),
+});
