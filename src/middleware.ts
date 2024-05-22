@@ -17,57 +17,64 @@ const SECURED_PAGES = [
 const isSecurePage = (url: string) =>
   SECURED_PAGES.find((page) => page.path.startsWith(url));
 
+const getVerifiedToken = async (request: NextRequest) => {
+  const token = request.cookies.get("token")?.value || null;
+  if (token) {
+    try {
+      const jwtVerifyResult = await verifyJwtToken(token);
+      return {
+        hasVerifiedToken: true,
+        roles: jwtVerifyResult?.payload["roles"] as string[],
+      };
+    } catch (error) {
+      return { hasVerifiedToken: false, roles: [] };
+    }
+  }
+  return { hasVerifiedToken: false, roles: [] };
+};
+
+const processAuthPage = (request: NextRequest, tokenResult: any) => {
+  if (tokenResult.hasVerifiedToken)
+    return NextResponse.redirect(new URL("/", request.url));
+
+  const response = NextResponse.next();
+  response.cookies.delete("token");
+  return response;
+};
+
+const processSecuredRoute = (
+  request: NextRequest,
+  securedPathConfig: any,
+  tokenResult: any
+) => {
+  if (!tokenResult.hasVerifiedToken)
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+
+  if (securedPathConfig.roles.length <= 0) return NextResponse.next();
+
+  let userHasRole: boolean = securedPathConfig.roles.some((role: any) =>
+    tokenResult.roles.some((r: any) => r == role)
+  );
+
+  if (userHasRole) return NextResponse.next();
+
+  return NextResponse.redirect(new URL("/auth/accessdenied", request.url));
+};
+
 export async function middleware(request: NextRequest) {
-  const { cookies, url, nextUrl } = request;
-  console.log("nexturl:", nextUrl);
-
-  const { value: token } = cookies.get("token") ?? { value: null };
-  const jwtTokenResult = await verifyJwtToken(token!);
-  const hasVerifiedToken = jwtTokenResult; // Kullanıcı token sahibi mi ve geçerli mi?
-  const authPageRequested = isAuthPage(nextUrl.pathname); // Kullanıcı giriş sayfasına mı istek attı ?
-  const roles: string[] = jwtTokenResult?.payload["roles"] as string[];
-  // VerifyJwtToken => Tokenin bizim secret keyimiz ile üretildiğini ve zamanının geçip geçmediğini kontrol eder.
-  if (authPageRequested) {
-    if (!hasVerifiedToken) {
-      // Eğer auth sayfası ise ve token yok/invalid ise cookie temizle ve giriş sayfasına yönlendir.
-      const response = NextResponse.next();
-      response.cookies.delete("token");
-      return response;
-    }
-
-    // Eğer auth sayfasına gelmiş ama tokenı var ve geçerli ise ana sayfaya yönlendir.
-    return NextResponse.redirect(new URL("/", url));
-  }
+  const { nextUrl } = request;
+  const authPageRequested = isAuthPage(nextUrl.pathname);
   let securedPath = isSecurePage(nextUrl.pathname);
-  console.log(securedPath);
-  if (securedPath) {
-    if (securedPath.requiredRoles.length > 0) {
-      if (!hasVerifiedToken)
-        return NextResponse.redirect(new URL("/auth/login", url));
-      // Rol kontrolü gerekli.
-      if (
-        securedPath.requiredRoles.some((role) =>
-          roles.some((r) => r.toLowerCase() == role.toLowerCase())
-        )
-      )
-        return NextResponse.next();
 
-      return NextResponse.redirect(new URL("/auth/accessdenied", url));
-    } else {
-      // Rol kontrolü gereksiz, auth yeterli.
-      if (hasVerifiedToken) return NextResponse.next();
-
-      return NextResponse.redirect(new URL("/auth/login", url));
-    }
+  if (authPageRequested || securedPath) {
+    const tokenResult = await getVerifiedToken(request);
+    if (authPageRequested) return processAuthPage(request, tokenResult);
+    else return processSecuredRoute(request, securedPath, tokenResult);
   }
-  // URL'De koruma yoktur. (Protected Route değildir..)
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: ["/auth/login", "/admin/dashboard", "/homepage/index", "/"],
 };
-
-// Nextjs ile auth işlemleri (prisma => hashing,salting)
-// RsPack ile microfrontend
-// Nextjs ile full stack crud işlemleri olan bir uygulama (prisma, vs..)
