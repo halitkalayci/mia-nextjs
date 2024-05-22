@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import React from "react";
+import ProtectedNavItem from "../protected-nav-item/ProtectedNavItem";
 
 export default function Navbar() {
   const authContext: any = useAuth();
@@ -66,16 +67,18 @@ export default function Navbar() {
                 >
                   Homepage
                 </Link>
-                {authContext.auth &&
-                  authContext.auth.roles.includes("admin") && (
-                    <Link
-                      href="/admin/dashboard"
-                      className="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium"
-                      aria-current="page"
-                    >
-                      Dashboard
-                    </Link>
-                  )}
+                <ProtectedNavItem
+                  requiredRoles={["admin", "category.admin"]}
+                  authContext={authContext}
+                  href={"/admin/category/list"}
+                  label="Kategori"
+                />
+                <ProtectedNavItem
+                  requiredRoles={["admin", "product.admin"]}
+                  authContext={authContext}
+                  href={"/admin/product/list"}
+                  label="Ürün"
+                />
               </div>
             </div>
           </div>

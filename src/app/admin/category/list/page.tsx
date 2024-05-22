@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 
 export default function Page() {
@@ -70,9 +71,11 @@ export default function Page() {
                       <TableCell>{category.id}</TableCell>
                       <TableCell>{category.name}</TableCell>
                       <TableCell>
-                        <Button className="mr-3">
-                          <i className="pi pi-info"></i>
-                        </Button>
+                        <Link href={"/admin/category/" + category.id}>
+                          <Button className="mr-3">
+                            <i className="pi pi-info"></i>
+                          </Button>
+                        </Link>
 
                         <Button
                           onClick={() => {
