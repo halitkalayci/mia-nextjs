@@ -41,6 +41,7 @@ model Product {
   imageUrl    String
   categoryId  Int
   orderItems  OrderItem[]
+  deletedDate DateTime?
   category    Category    @relation(fields: [categoryId], references: [id])
 }
 
