@@ -5,7 +5,7 @@ let prisma: PrismaClient;
 
 prisma = new PrismaClient();
 
-prisma.$use(async (params, next) => {
+prisma.$use(async (params: any, next: any) => {
   const modelsWithSofDelete = ["Category"];
 
   if (params.action.startsWith("find")) {
