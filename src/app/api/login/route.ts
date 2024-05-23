@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { username: username },
-      include: { roles: { include: {role:true} } }
+      include: { roles: { include: { role: true } } },
     });
 
     if (!user)
@@ -32,7 +32,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
 
-    const roles = user.roles.map(userRole => userRole.role.name.toLowerCase());
+    const roles = user.roles.map((userRole: any) =>
+      userRole.role.name.toLowerCase()
+    );
 
     const token: string = await new SignJWT({
       username: user.username,
