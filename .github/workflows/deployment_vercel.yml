@@ -1,1 +1,6 @@
 name: Deploy application to vercel
+
+on:
+  push:
+    branches:
+      - main
