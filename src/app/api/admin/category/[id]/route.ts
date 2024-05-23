@@ -2,10 +2,6 @@ import prisma from "@/libs/prisma";
 import { useRouter } from "next/router";
 import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  bodyParser: true,
-};
-
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } } // route queryleri,pathler daima string.
