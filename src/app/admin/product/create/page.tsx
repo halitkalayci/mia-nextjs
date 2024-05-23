@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Dropzone, { useDropzone } from "react-dropzone";
 export default function Page() {
   const form = useForm({ resolver: yupResolver(addProductValidationSchema) });
   const [categories, setCategories] = useState([]);
@@ -51,6 +52,16 @@ export default function Page() {
   useEffect(() => {
     fetchCategories();
   }, []);
+  const onDrop = useCallback((acceptedFiles: any) => {
+    console.log(acceptedFiles);
+  }, []);
+  const dropzone = useDropzone({ onDrop, multiple: true });
+
+  const files = dropzone.acceptedFiles.map((file: any) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
 
   return (
     <div className="flex flex-col mt-5 justify-center items-center">
@@ -167,6 +178,26 @@ export default function Page() {
               }}
             />
           </div>
+
+          {/* <Dropzone  onDrop={onDrop}>
+            {({ getRootProps, getInputProps }) => (
+              <div className="dropzone" {...getRootProps()}>
+                <input {...getInputProps()} />
+                <p>Drag 'n' drop some files here, or click to select files</p>
+              </div>
+            )}
+          </Dropzone> */}
+
+          {/* https://react-dropzone.js.org/#section-basic-example */}
+          <div {...dropzone.getRootProps({ className: "dropzone" })}>
+            <input {...dropzone.getInputProps()} />
+            <p>Drag 'n' drop some files here, or click to select files</p>
+          </div>
+
+          <aside>
+            <h4>Files</h4>
+            <ul>{files}</ul>
+          </aside>
 
           <Button className="w-full" type="submit">
             Submit
