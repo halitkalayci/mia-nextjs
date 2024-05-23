@@ -62,7 +62,7 @@ export default function Page() {
       {file.path} - {file.size} bytes
     </li>
   ));
-
+  //https://docs.gitlab.com/ee/ci/migration/github_actions.html
   return (
     <div className="flex flex-col mt-5 justify-center items-center">
       <h3>Create Category Form</h3>
