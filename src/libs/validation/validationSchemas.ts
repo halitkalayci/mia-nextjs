@@ -1,4 +1,4 @@
-import { number, object, string } from "yup";
+import { mixed, number, object, string } from "yup";
 
 export const addCategoryValidationSchema = object({
   name: string()
@@ -18,4 +18,5 @@ export const addProductValidationSchema = object({
   categoryId: number().required().min(1),
   description: string().min(5),
   price: number().required().min(1),
+  file: mixed(),
 });

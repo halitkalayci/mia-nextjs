@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { addProductValidationSchema } from "@/libs/validation/validationSchemas";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import {
   Select,
   SelectContent,
@@ -20,12 +20,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 export default function Page() {
   const form = useForm({ resolver: yupResolver(addProductValidationSchema) });
   const [categories, setCategories] = useState([]);
+  const router = useRouter();
 
-  const onSubmit = (event: any) => {
-    console.log(event);
+  const onSubmit = async (event: any) => {
+    const formData = new FormData();
+    formData.append("deneme", "123");
+    Object.keys(event).forEach((key) => {
+      formData.append(key, event[key]);
+    });
+
+    const response = await fetch("/api/admin/product/", {
+      method: "POST",
+      body: formData,
+    });
+    const json = await response.json();
+
+    if (json.success) router.push("/admin/product/list");
   };
 
   const fetchCategories = async () => {
@@ -52,7 +66,7 @@ export default function Page() {
                   <Input
                     defaultValue={""}
                     className="my-2"
-                    placeholder="Ürün Adı"
+                    placeholder="Product Name"
                     {...field}
                   />
                 );
@@ -63,6 +77,47 @@ export default function Page() {
             )}
           </div>
 
+          <div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => {
+                return (
+                  <Input
+                    defaultValue={""}
+                    className="my-2"
+                    placeholder="Product Description"
+                    {...field}
+                  />
+                );
+              }}
+            />
+            {form.formState.errors.description && (
+              <small>{form.formState.errors.description?.message}</small>
+            )}
+          </div>
+
+          <div>
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => {
+                return (
+                  <Input
+                    defaultValue={""}
+                    className="my-2"
+                    placeholder="Product Price"
+                    type="number"
+                    {...field}
+                  />
+                );
+              }}
+            />
+            {form.formState.errors.price && (
+              <small>{form.formState.errors.price?.message}</small>
+            )}
+          </div>
+
           {categories.length > 0 && (
             <div>
               <FormField
@@ -70,7 +125,6 @@ export default function Page() {
                 name="categoryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kategori</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={"1"}>
                       <FormControl>
                         <SelectTrigger>
@@ -88,16 +142,32 @@ export default function Page() {
                         ))}
                       </SelectContent>
                     </Select>
-
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {form.formState.errors.name && (
-                <small>{form.formState.errors.name.message}</small>
-              )}
             </div>
           )}
+
+          <div>
+            <Controller
+              name="file"
+              control={form.control}
+              render={({ field }) => {
+                return (
+                  <input
+                    className="my-2"
+                    type="file"
+                    onChange={(e) => {
+                      console.log(e);
+                      field.onChange(e.target.files ? e.target.files[0] : null);
+                    }}
+                  />
+                );
+              }}
+            />
+          </div>
+
           <Button className="w-full" type="submit">
             Submit
           </Button>

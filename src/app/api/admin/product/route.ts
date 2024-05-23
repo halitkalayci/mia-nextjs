@@ -51,3 +51,9 @@ const uploadImage = async (buffer: Buffer): Promise<string> => {
     uploadStream.end(buffer);
   });
 };
+
+export async function GET(request: NextRequest) {
+  const products = await prisma.product.findMany();
+
+  return NextResponse.json({ success: true, products: products });
+}
