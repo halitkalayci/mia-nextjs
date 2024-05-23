@@ -2,6 +2,9 @@
 const nextConfig = {
     images:{
         remotePatterns: [{hostname:'res.cloudinary.com'}]
+    },
+    typescript:{
+        ignoreBuildErrors:false
     }
 };
 
